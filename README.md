@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Postgres DB backup uses the 'scheduledjob' functionality of OpenShift to start a pod in regular intervals. The pod dumps a specific database (with a drop and create statement) to a persistent volume and exits.
+The Postgres DB backup uses the `cronjob` functionality of OpenShift to start a pod in regular intervals. The pod dumps a specific database (with a drop and create statement) to a persistent volume and exits.
 
 This tool uses an existing RedHat Postgres DB container and overrides its command. There is no need to build a container.
 
@@ -40,7 +40,7 @@ oc process --parameters -f postgres-backup-template.yaml
 * DATABASE_NAME
 * DATABASE_BACKUP_VOLUME_CLAIM
 
-### Create the scheduled Job
+### Create the cronjob
 
 ```bash
 oc process -f postgres-backup-template-with-icinga.yaml DATABASE_USER=<dbuser> DATABASE_PASSWORD=<dbpassword> DATABASE_HOST=<dbhost> DATABASE_PORT=<dbport> DATABASE_NAME=<dbname> DATABASE_BACKUP_VOLUME_CLAIM=<pvc-claim-name> ICINGA_USERNAME=<icinga-user> ICINGA_PASSWORD=<icinga-password> ICINGA_SERVICE_URL=<icinga-service-url> | oc create -f -
@@ -53,19 +53,19 @@ oc create -f postgres-backup-template.yaml
 oc process postgres-backup-template DATABASE_USER=<dbuser> DATABASE_PASSWORD=<dbpassword> ... | oc create -f -
 ```
 
-To check if the scheduled job is present:
+To check if the cronjob is present:
 
 ````bash
-oc get scheduledjobs
+oc get cronjob
 ````
 
 ### Housekeeping
 
-To disable the backup, you can simply remove the scheduledjob:
+To disable the backup, you can simply suspend the cronjob:
 
-````bash
-oc delete scheduledjob postgres-backup
-````
+`oc edit cronjob postgres-backup`
+
+Find the attribute `suspend` and set the value to `true`
 
 To restore the backup you start a backup pod (e.g. in debug mode) connect to the pod and use:
 
