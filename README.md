@@ -6,6 +6,14 @@ The Postgres DB backup uses the 'scheduledjob' functionality of OpenShift to sta
 
 This tool uses an existing RedHat Postgres DB container and overrides its command. There is no need to build a container.
 
+The project contains two templates:
+
+* postgres-backup-template.yaml
+* postgres-backup-template-with-icinga.yaml
+
+As the names are stating the second template has also an implementation with a monitoring support from icinga.
+More about the monitoring can be found int the section [Monitoring](#Monitoring)
+
 ## How to deploy the postgres DB backup pod
 
 ### Prequisits
@@ -35,7 +43,7 @@ oc process --parameters -f postgres-backup-template.yaml
 ### Create the scheduled Job
 
 ```bash
-oc process -f postgres-backup-template.yml DATABASE_USER=<dbuser> DATABASE_PASSWORD=<dbpassword> DATABASE_HOST=<dbhost> DATABASE_PORT=<dbport> DATABASE_NAME=<dbname> DATABASE_BACKUP_VOLUME_CLAIM=<pvc-claim-name> ICINGA_USERNAME=<icinga-user> ICINGA_PASSWORD=<icinga-password> ICINGA_SERVICE_URL=<icinga-service-url> | oc create -f -
+oc process -f postgres-backup-template-with-icinga.yaml DATABASE_USER=<dbuser> DATABASE_PASSWORD=<dbpassword> DATABASE_HOST=<dbhost> DATABASE_PORT=<dbport> DATABASE_NAME=<dbname> DATABASE_BACKUP_VOLUME_CLAIM=<pvc-claim-name> ICINGA_USERNAME=<icinga-user> ICINGA_PASSWORD=<icinga-password> ICINGA_SERVICE_URL=<icinga-service-url> | oc create -f -
 ```
 
 You can also store the template in the project using and `oc process` afterwards
@@ -72,10 +80,8 @@ psql --username=db-user> --password --host=<host> postgres < <path-to-backupfile
 
 ### Monitoring
 
-In this template an passive incinga service is monitoring the backup. Should the bash script (responsible for the backup) throw an error at any point during the executing the notification will not be sent to icinga. The passive service checks periodically if a notification was received. If not the service will update its status. The following parameters are used for the monitoring:
+In the template `postgres-backup-template-with-icinga.yaml` an passive incinga service is monitoring the backup. Should the bash script (responsible for the backup) throw an error at any point during the executing the notification will not be sent to icinga. The passive service checks periodically if a notification was received. If not the service will update its status. The following parameters are used for the monitoring:
 
 * ICINGA_USERNAME
 * ICINGA_PASSWORD
 * ICINGA_SERVICE_URL
-
-If you don't use icinga/use another monitoring service you can remove/update the corresponding parts of the template.

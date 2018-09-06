@@ -30,6 +30,12 @@ parameters:
   - name: DATABASE_BACKUP_VOLUME_CLAIM
     description: 'Name of the volume claim to be used as storage'
     required: true
+  - name: ICINGA_USERNAME
+    description: 'User for Icinga Login'
+  - name: ICINGA_PASSWORD
+    description: 'Password for Icinga Login'
+  - name: ICINGA_SERVICE_URL
+    description: 'Service url to be notified in Incinga'
 objects:
   - apiVersion: batch/v2alpha1
     kind: CronJob
@@ -59,6 +65,8 @@ objects:
                       FILENAME=backup-${DATABASE_NAME}-`date +%Y-%m-%d_%H%M%S`.sql.gz;
                       time (find /database-backup -type f -name "backup-${DATABASE_NAME}-*"  -exec ls -1tr "{}" + | head -n -${DATABASE_BACKUP_KEEP} | xargs rm -fr; 
                       PGPASSWORD="$DATABASE_PASSWORD" pg_dump --username=$DATABASE_USER --host=$DATABASE_HOST --port=$DATABASE_PORT --column-inserts --clean --create ${DATABASE_NAME} | gzip > /database-backup/$FILENAME); 
+                      echo "Icinga Response:";
+                      curl -k -s -u $ICINGA_USERNAME:"$ICINGA_PASSWORD" -H 'Accept: application/json' -X POST "$ICINGA_SERVICE_URL" -d '{ "exit_status": 0, "plugin_output": "backup ok" }';
                       echo "";
                       echo "Backup successful"; du -h /database-backup/$FILENAME; 
                       echo "to restore the backup to the serviced host use: $ psql --username=$DATABASE_USER --password --host=$DATABASE_HOST --port=$DATABASE_PORT postgres < /database-backup/<backupfile> (unpacked)"
@@ -75,6 +83,12 @@ objects:
                       value: ${DATABASE_PORT}
                     - name: DATABASE_NAME
                       value: ${DATABASE_NAME}
+                    - name: ICINGA_USERNAME
+                      value: ${ICINGA_USERNAME}
+                    - name: ICINGA_PASSWORD
+                      value: ${ICINGA_PASSWORD}
+                    - name: ICINGA_SERVICE_URL
+                      value: ${ICINGA_SERVICE_URL}
                     - name: TZ
                       value: Europe/Zurich
                   volumeMounts:
