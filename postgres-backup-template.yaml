@@ -11,7 +11,7 @@ parameters:
     value: '5'
   - name: DATABASE_BACKUP_SCHEDULE
     description: 'Cron-like schedule expression'
-    value: '55 * * * *'
+    value: '50 * * * *'
   - name: DATABASE_USER
     description: 'database user'
     required: true
@@ -31,7 +31,7 @@ parameters:
     description: 'Name of the volume claim to be used as storage'
     required: true
 objects:
-  - apiVersion: batch/v2alpha1
+  - apiVersion: batch/v1
     kind: CronJob
     metadata:
       name: postgres-backup

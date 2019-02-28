@@ -6,7 +6,7 @@ The Postgres DB backup uses the `cronjob` functionality of OpenShift to start a 
 
 It uses an existing RedHat Postgres DB container and overrides its command. There is no need to build a container.
 
-The project contains two templates:
+The project contains multiple templates:
 
 * postgres-backup-template.yaml
 * postgres-backup-template-with-secret.yaml (this example provides three keys in the secret: database-user, database-password, database-name)
@@ -39,7 +39,7 @@ oc process --parameters -f postgres-backup-template.yaml
 
 Instead of passing the DB Credentials in plaintext to the cronjob it's possible to use the appropriate secrets.
 
-``` [bash]
+```bash
 ...
       env:
         - name: DATABASE_USER
@@ -84,7 +84,7 @@ oc process -f postgres-backup-template.yaml DATABASE_USER=<dbuser> DATABASE_PASS
 The secret used in this template provided database name, database user and database password.
 
 ```bash
-oc process -f postgres-backup-template-with-secret.yaml DATABASE_SECRET=<secretname> DATABASE_HOST=<dbhost> DATABASE_PORT=<dbport> DATABASE_NAME=<dbname> DATABASE_BACKUP_VOLUME_CLAIM=<pvc-claim-name> | oc create -f -
+oc process -f postgres-backup-template-with-secret.yaml DATABASE_SECRET=<secretname> DATABASE_HOST=<dbhost> DATABASE_PORT=<dbport> DATABASE_BACKUP_VOLUME_CLAIM=<pvc-claim-name> | oc create -f -
 ```
 
 *HINT:* You can also store the template in the project using and `oc process` afterwards
