@@ -37,7 +37,7 @@ parameters:
   - name: ICINGA_SERVICE_URL
     description: 'Service url to be notified in Incinga'
 objects:
-  - apiVersion: batch/v1
+  - apiVersion: batch/v1beta1
     kind: CronJob
     metadata:
       name: postgres-backup
