@@ -61,7 +61,7 @@ objects:
                       PGPASSWORD="$DATABASE_PASSWORD" pg_dump --username=$DATABASE_USER --host=$DATABASE_HOST --port=$DATABASE_PORT --column-inserts --clean --create ${DATABASE_NAME} | gzip > /database-backup/$FILENAME); 
                       echo "";
                       echo "Backup successful"; du -h /database-backup/$FILENAME; 
-                      echo "to restore the backup to the serviced host use: $ psql --username=$DATABASE_USER --password --host=$DATABASE_HOST --port=$DATABASE_PORT postgres < /database-backup/<backupfile> (unpacked)"
+                      echo "to restore the backup to the serviced host use: $ zcat /database-backup/$MY-DUMP.tgz | PGPASSWORD=$DATABASE_PASSWORD psql --username=$DATABASE_USER --host=$DATABASE_HOST --port=$DATABASE_PORT postgres"
                   env:
                     - name: DATABASE_BACKUP_KEEP
                       value: ${DATABASE_BACKUP_KEEP}
